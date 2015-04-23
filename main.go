@@ -23,25 +23,32 @@ func main() {
 		log.Fatal("Fail to parse:", err)
 	}
 
+	useTLS := false
+
 	if _, _, err := net.SplitHostPort(u.Host); err != nil {
 		// no port specified
 		switch u.Scheme {
-		case "wss", "https", "":
-			u.Host += ":443"
-		case "ws", "http":
+		case "ws", "http", "":
 			u.Host += ":80"
+		case "wss", "https":
+			u.Host += ":443"
 		default:
 			log.Fatal("Unsupported URL scheme: %q", u.Scheme)
 		}
 	}
 
-	netConn, err := tls.Dial("tcp", u.Host, &tls.Config{})
+	conn, err := net.Dial("tcp", u.Host)
 	if err != nil {
 		log.Fatal("Failed to connect:", err)
 	}
-	defer netConn.Close()
+	defer conn.Close()
 
-	socket, _, err := websocket.NewClient(netConn, u, http.Header{}, 1024, 1024)
+	if useTLS {
+		conn = tls.Client(conn, nil)
+		defer conn.Close()
+	}
+
+	socket, _, err := websocket.NewClient(conn, u, http.Header{}, 1024, 1024)
 	if err != nil {
 		log.Fatal("WS request failed:", err)
 	}
