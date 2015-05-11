@@ -90,7 +90,7 @@ func ActionMain(c *cli.Context) {
 	headers.Set("Origin", origin)
 
 	if u.User != nil {
-		userPassBytes := []byte(u.User.String())
+		userPassBytes := []byte(u.User.String() + ":")
 		token := base64.StdEncoding.EncodeToString(userPassBytes)
 		headers.Set("Authorization", fmt.Sprintf("Basic %v", token))
 		u.User = nil
