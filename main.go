@@ -96,8 +96,11 @@ func ActionMain(c *cli.Context) {
 		u.User = nil
 	}
 
-	conn, _, err := websocket.DefaultDialer.Dial(u.String(), headers)
+	conn, resp, err := websocket.DefaultDialer.Dial(u.String(), headers)
 	if err != nil {
+		if resp != nil {
+			err = fmt.Errorf("%v: response: %v", err, resp.Status)
+		}
 		log.Fatalf("Error dialing: %v", err)
 	}
 	defer conn.Close()
