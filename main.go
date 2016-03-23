@@ -67,6 +67,12 @@ func MustParseURL(u string) *url.URL {
 	if err != nil {
 		log.Fatalf("Unable to parse URL: %v: %v", u, err)
 	}
+	switch tgt.Scheme {
+	case "http":
+		tgt.Scheme = "ws"
+	case "https":
+		tgt.Scheme = "wss"
+	}
 	return tgt
 }
 
